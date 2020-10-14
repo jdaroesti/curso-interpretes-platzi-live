@@ -38,6 +38,8 @@ class Lexer:
             token = Token(TokenType.COMMA, self._character)
         elif match(r'^;$', self._character):
             token = Token(TokenType.SEMICOLON, self._character)
+        elif match(r'^<$', self._character):
+            token = Token(TokenType.LT, self._character)
         elif self._is_letter(self._character):
             literal = self._read_identifier()
             token_type = lookup_token_type(literal)
