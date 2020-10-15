@@ -1,7 +1,9 @@
 from unittest import TestCase
 
 from lpp.ast import (
+    ExpressionStatement,
     Identifier,
+    Integer,
     LetStatement,
     Program,
     ReturnStatement,
@@ -47,4 +49,19 @@ class ASTTest(TestCase):
         program_str = str(program)
 
         self.assertEquals(program_str, 'regresa mi_var;')
+
+    def test_integer_expressions(self) -> None:
+        program: Program = Program(statements=[
+            ExpressionStatement(
+                token=Token(TokenType.INT, literal='5'),
+                expression=Integer(
+                    token=Token(TokenType.INT, literal='5'),
+                    value=5
+                )
+            ),
+        ])
+        
+        program_str = str(program)
+
+        self.assertEquals(program_str, '5')
 
