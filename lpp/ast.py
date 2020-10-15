@@ -106,3 +106,17 @@ class ExpressionStatement(Statement):
 
     def __str__(self) -> str:
         return str(self.expression)
+
+
+class Integer(Expression):
+
+    def __init__(self,
+                 token: Token,
+                 value: Optional[int] = None) -> None:
+        super().__init__(token)
+        self.value = value
+
+    def __str__(self) -> str:
+        return str(self.value)
+
+
