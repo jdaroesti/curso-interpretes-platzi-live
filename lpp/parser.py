@@ -213,6 +213,15 @@ class Parser:
 
         if_expression.consequence = self._parse_block()
 
+        assert self._peek_token is not None
+        if self._peek_token.token_type == TokenType.ELSE:
+            self._advance_tokens()
+
+            if not self._expected_token(TokenType.LBRACE):
+                return None
+
+            if_expression.alternative = self._parse_block()
+
         return if_expression
 
     def _parse_infix_expression(self, left: Expression) -> Infix:
