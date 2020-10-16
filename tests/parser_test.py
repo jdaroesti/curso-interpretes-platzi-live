@@ -8,6 +8,7 @@ from typing import (
 from unittest import TestCase
 
 from lpp.ast import (
+    Boolean,
     Expression,
     ExpressionStatement,
     Identifier,
@@ -183,6 +184,33 @@ class ParserTest(TestCase):
                                         expected_operator,
                                         expected_right)
 
+    def test_boolean_expression(self) -> None:
+        source: str = 'verdadero; falso;'
+        lexer: Lexer = Lexer(source)
+        parser: Parser = Parser(lexer)
+
+        program: Program = parser.parse_program()
+
+        self._test_program_statements(parser, program, expected_statement_count=2)
+
+        expected_values: List[bool] = [True, False]
+
+        for statement, expected_value in zip(program.statements, expected_values):
+            expression_statement = cast(ExpressionStatement, statement)
+
+            assert expression_statement.expression is not None
+            self._test_literal_expression(expression_statement.expression,
+                                          expected_value)
+
+    def _test_boolean(self,
+                      expression: Expression,
+                      expected_value: bool) -> None:
+        self.assertIsInstance(expression, Boolean)
+
+        boolean = cast(Boolean, expression)
+        self.assertEquals(boolean.value, expected_value)
+        self.assertEquals(boolean.token.literal, 'verdadero' if expected_value else 'falso')
+
     def _test_infix_expression(self,
                                expression: Expression,
                                expected_left: Any,
@@ -218,6 +246,8 @@ class ParserTest(TestCase):
             self._test_identifier(expression, expected_value)
         elif value_type == int:
             self._test_integer(expression, expected_value)
+        elif value_type == bool:
+            self._test_boolean(expression, expected_value)
         else:
             self.fail(f'Unhandled type of expression. Got={value_type}')
 
