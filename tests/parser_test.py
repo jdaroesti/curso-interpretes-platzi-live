@@ -10,6 +10,7 @@ from unittest import TestCase
 from lpp.ast import (
     Block,
     Boolean,
+    Call,
     Expression,
     ExpressionStatement,
     Function,
@@ -232,6 +233,10 @@ class ParserTest(TestCase):
             ('(5 + 5) * 2;', '((5 + 5) * 2)', 1),
             ('2 / (5 + 5);', '(2 / (5 + 5))', 1),
             ('-(5 + 5);', '(-(5 + 5))', 1),
+            ('a + suma(b * c) + d;', '((a + suma((b * c))) + d)', 1),
+            ('suma(a, b, 1, 2 * 3, 4 + 5, suma(6, 7 * 8));',
+             'suma(a, b, 1, (2 * 3), (4 + 5), suma(6, (7 * 8)))', 1),
+            ('suma(a + b + c * d / f + g);', 'suma((((a + b) + ((c * d) / f)) + g))', 1),
         ]
 
         for source, expected_result, expected_statement_count in test_sources:
@@ -242,6 +247,27 @@ class ParserTest(TestCase):
 
             self._test_program_statements(parser, program, expected_statement_count)
             self.assertEquals(str(program), expected_result)
+
+    def test_call_expression(self) -> None:
+        source: str = 'suma(1, 2 * 3, 4 + 5);'
+        lexer: Lexer = Lexer(source)
+        parser: Parser = Parser(lexer)
+
+        program: Program = parser.parse_program()
+
+        self._test_program_statements(parser, program)
+
+        call = cast(Call, cast(ExpressionStatement,
+                               program.statements[0]).expression)
+        self.assertIsInstance(call, Call)
+        self._test_identifier(call.function, 'suma')
+
+        # Test arguments
+        assert call.arguments is not None
+        self.assertEquals(len(call.arguments), 3)
+        self._test_literal_expression(call.arguments[0], 1)
+        self._test_infix_expression(call.arguments[1], 2, '*', 3)
+        self._test_infix_expression(call.arguments[2], 4, '+', 5)
 
     def test_if_expression(self) -> None:
         source: str = 'si (x < y) { z }'
