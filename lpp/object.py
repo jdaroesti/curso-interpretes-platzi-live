@@ -6,6 +6,7 @@ from enum import (
     auto,
     Enum,
 )
+from typing import Dict
 
 
 class ObjectType(Enum):
@@ -82,4 +83,19 @@ class Error(Object):
 
     def inspect(self) -> str:
         return f'Error: {self.message}'
+
+
+class Environment(Dict):
+
+    def __init__(self):
+        self._store = dict()
+
+    def __getitem__(self, key):
+        return self._store[key]
+
+    def __setitem__(self, key, value):
+        self._store[key] = value
+
+    def __delitem__(self, key):
+        del self._store[key]
 
