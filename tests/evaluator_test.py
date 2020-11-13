@@ -3,6 +3,7 @@ from typing import (
     cast,
     List,
     Tuple,
+    Union,
 )
 from unittest import TestCase
 
@@ -272,6 +273,33 @@ class EvaluatorTest(TestCase):
         for source, expected in tests:
             evaluated = self._evaluate_tests(source)
             self._test_boolean_object(evaluated, expected)
+
+    def test_builtin_functions(self) -> None:
+        tests: List[Tuple[str, Union[str, int]]] = [
+            ('longitud("");', 0),
+            ('longitud("cuatro");', 6),
+            ('longitud("Hola mundo");', 10),
+            ('longitud(1);', 
+             'argumento para longitud sin soporte, se recibió INTEGER'),
+            ('longitud("uno", "dos");',
+             'número incorrecto de argumentos para longitud, se recibieron 2, se requieren 1'),
+        ]
+
+        for source, expected in tests:
+            evaluated = self._evaluate_tests(source)
+
+            if type(expected) == int:
+                expected = cast(int, expected)
+                self._test_integer_object(evaluated, expected)
+            else:
+                expected = cast(str, expected)
+                self._test_error_object(evaluated, expected)
+
+    def _test_error_object(self, evaluated: Object, expected: str) -> None:
+        self.assertIsInstance(evaluated, Error)
+
+        evaluated = cast(Error, evaluated)
+        self.assertEquals(evaluated.message, expected)
 
     def _test_string_object(self, evaluated: Object, expected: str) -> None:
         self.assertIsInstance(evaluated, String)
