@@ -244,6 +244,9 @@ def _evaluate_infix_expression(operator: str,
     if left.type() == ObjectType.INTEGER \
             and right.type() == ObjectType.INTEGER:
         return _evaluate_integer_infix_expression(operator, left, right)
+    elif left.type() == ObjectType.STRING \
+            and right.type() == ObjectType.STRING:
+        return _evaluate_string_infix_expression(operator, left, right)
     elif operator == '==':
         return _to_boolean_object(left is right)
     elif operator == '!=':
@@ -252,6 +255,24 @@ def _evaluate_infix_expression(operator: str,
         return _new_error(_TYPE_MISMATCH, [left.type().name,
                                           operator,
                                           right.type().name])
+    else:
+        return _new_error(_UNKNOWN_INFIX_OPERATOR, [left.type().name,
+                                                    operator,
+                                                    right.type().name])
+
+
+def _evaluate_string_infix_expression(operator: str,
+                                      left: Object,
+                                      right: Object) -> Object:
+    left_value: str = cast(String, left).value
+    right_value: str = cast(String, right).value
+
+    if operator == '+':
+        return String(left_value + right_value)
+    elif operator == '==':
+        return _to_boolean_object(left_value == right_value)
+    elif operator == '!=':
+        return _to_boolean_object(left_value != right_value)
     else:
         return _new_error(_UNKNOWN_INFIX_OPERATOR, [left.type().name,
                                                     operator,
