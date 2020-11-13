@@ -22,6 +22,7 @@ from lpp.ast import (
     Prefix,
     Program,
     ReturnStatement,
+    StringLiteral,
 )
 from lpp.lexer import Lexer
 from lpp.parser import Parser
@@ -418,6 +419,19 @@ class ParserTest(TestCase):
 
             for idx, param in enumerate(test['expected_params']):
                 self._test_literal_expression(function.parameters[idx], param)
+
+    def test_string_literal_expression(self) -> None:
+        source: str = '"hello world!"'
+        lexer: Lexer = Lexer(source)
+        parser: Parser = Parser(lexer)
+
+        program: Program = parser.parse_program()
+
+        expression_statement = cast(ExpressionStatement, program.statements[0])
+        string_literal = cast(StringLiteral, expression_statement.expression)
+
+        self.assertIsInstance(string_literal, StringLiteral)
+        self.assertEquals(string_literal.value, 'hello world!')
 
     def _test_boolean(self,
                       expression: Expression,
