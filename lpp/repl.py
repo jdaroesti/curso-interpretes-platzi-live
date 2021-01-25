@@ -31,6 +31,7 @@ def start_repl() -> None:
 
         if len(parser.errors) > 0:
             _print_parse_errors(parser.errors)
+            scanned.pop()
             continue
 
         evaluated = evaluate(program, env)
